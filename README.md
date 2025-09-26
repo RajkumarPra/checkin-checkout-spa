@@ -26,9 +26,26 @@ npm run preview
 ```
 
 ## Configuration
-Update the placeholder endpoints in `src/App.jsx`:
-- `CHECKIN_URL`
-- `CHECKOUT_URL`
+
+### Environment Variables
+Create a `.env` file in your project root:
+
+```bash
+# Zoho Configuration
+VITE_ZOHO_CONREQCSR=your_csrf_token_here
+VITE_ZOHO_LATITUDE=17.4798767998417
+VITE_ZOHO_LONGITUDE=78.31581476099379
+VITE_ZOHO_ACCURACY=105
+VITE_ZOHO_URL_MODE=myspace
+```
+
+### Getting Your CSRF Token
+1. Login to Zoho People
+2. Open browser developer tools (F12)
+3. Go to Network tab
+4. Perform a Check-In/Check-Out action
+5. Look for the `conreqcsr` value in the request
+6. Copy that value to your `.env` file
 
 The timer starts on Check-In, updates every second, and stops on Check-Out while keeping the elapsed display.
 

@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 const ZOHO_CHECKIN_URL = 'https://people.zoho.com/xebiacom/AttendanceAction.zp?mode=punchIn';
 const ZOHO_CHECKOUT_URL = 'https://people.zoho.com/xebiacom/AttendanceAction.zp?mode=punchOut';
 
-// Zoho form fields (replace with your actual values)
+// Zoho form fields (configurable via environment variables)
 const ZOHO_FORM_DATA = {
-  conreqcsr: import.meta.env.VITE_ZOHO_CONREQCSR || '98800c4142e0e6ab26c18c44f03d9a157a2de35af33d601d734a8bfaa3db81f2e2c6a43e17c15b9eac0c98993002db601408de92ba1e18b12eb304ed5efd05ad',
-  urlMode: 'myspace',
-  latitude: import.meta.env.VITE_ZOHO_LATITUDE || '17.4798767998417',
-  longitude: import.meta.env.VITE_ZOHO_LONGITUDE || '78.31581476099379',
-  accuracy: import.meta.env.VITE_ZOHO_ACCURACY || '105',
+  conreqcsr: import.meta.env.VITE_ZOHO_CONREQCSR || '',
+  urlMode: import.meta.env.VITE_ZOHO_URL_MODE || 'myspace',
+  latitude: import.meta.env.VITE_ZOHO_LATITUDE || '',
+  longitude: import.meta.env.VITE_ZOHO_LONGITUDE || '',
+  accuracy: import.meta.env.VITE_ZOHO_ACCURACY || '',
 };
 
 function formatTime(totalSeconds) {
