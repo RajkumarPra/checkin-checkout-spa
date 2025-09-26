@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
-const CHECKIN_URL = import.meta.env.VITE_CHECKIN_URL || "https://example.com/checkin";
-// Zoho punchOut endpoint (can be customized via env)
-const ZOHO_CHECKOUT_URL = import.meta.env.VITE_ZOHO_CHECKOUT_URL || 'https://people.zoho.com/xebiacom/AttendanceAction.zp?mode=punchOut';
+// Zoho endpoints
+const ZOHO_CHECKIN_URL = 'https://people.zoho.com/xebiacom/AttendanceAction.zp?mode=punchIn';
+const ZOHO_CHECKOUT_URL = 'https://people.zoho.com/xebiacom/AttendanceAction.zp?mode=punchOut';
 
-// Configure Zoho punchOut form fields from env (keep secrets out of repo)
-const ZOHO_CHECKOUT_FORM = {
-  conreqcsr: import.meta.env.VITE_ZOHO_CONREQCSR || '',
-  urlMode: import.meta.env.VITE_ZOHO_URL_MODE || 'myspace',
-  latitude: import.meta.env.VITE_ZOHO_LATITUDE || '',
-  longitude: import.meta.env.VITE_ZOHO_LONGITUDE || '',
-  accuracy: import.meta.env.VITE_ZOHO_ACCURACY || '',
+// Zoho form fields (replace with your actual values)
+const ZOHO_FORM_DATA = {
+  conreqcsr: import.meta.env.VITE_ZOHO_CONREQCSR || '98800c4142e0e6ab26c18c44f03d9a157a2de35af33d601d734a8bfaa3db81f2e2c6a43e17c15b9eac0c98993002db601408de92ba1e18b12eb304ed5efd05ad',
+  urlMode: 'myspace',
+  latitude: import.meta.env.VITE_ZOHO_LATITUDE || '17.4798767998417',
+  longitude: import.meta.env.VITE_ZOHO_LONGITUDE || '78.31581476099379',
+  accuracy: import.meta.env.VITE_ZOHO_ACCURACY || '105',
 };
 
 function formatTime(totalSeconds) {
@@ -69,11 +69,26 @@ export default function App() {
     setStatusText('');
 
     try {
-      const response = await fetch(CHECKIN_URL, {
+      // Build multipart/form-data for Zoho Check-In
+      const form = new FormData();
+      form.append('conreqcsr', ZOHO_FORM_DATA.conreqcsr);
+      form.append('urlMode', ZOHO_FORM_DATA.urlMode);
+      form.append('latitude', ZOHO_FORM_DATA.latitude);
+      form.append('longitude', ZOHO_FORM_DATA.longitude);
+      form.append('accuracy', ZOHO_FORM_DATA.accuracy);
+
+      const response = await fetch(ZOHO_CHECKIN_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timestamp: new Date().toISOString() }),
+        body: form,
+        credentials: 'include',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          Accept: '*/*',
+        },
+        referrer: 'https://people.zoho.com/xebiacom/zp',
+        mode: 'cors',
       });
+
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       setStatusText('Checked in successfully.');
     } catch (error) {
@@ -91,25 +106,21 @@ export default function App() {
     }
 
     try {
-      // Build multipart/form-data as Zoho expects; only append provided values
+      // Build multipart/form-data for Zoho Check-Out
       const form = new FormData();
-      Object.entries(ZOHO_CHECKOUT_FORM).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && String(value).length > 0) {
-          form.append(key, value);
-        }
-      });
+      form.append('conreqcsr', ZOHO_FORM_DATA.conreqcsr);
+      form.append('urlMode', ZOHO_FORM_DATA.urlMode);
+      form.append('latitude', ZOHO_FORM_DATA.latitude);
+      form.append('longitude', ZOHO_FORM_DATA.longitude);
+      form.append('accuracy', ZOHO_FORM_DATA.accuracy);
 
       const response = await fetch(ZOHO_CHECKOUT_URL, {
         method: 'POST',
-        // Let the browser set Content-Type with correct boundary for FormData
         body: form,
         credentials: 'include',
-        // Only include headers that are safe for browsers to set automatically
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
           Accept: '*/*',
-          // DO NOT set Cookie headers manually in browsers
-          // DO NOT set sec-ch-ua, User-Agent, etc. — browser manages these
         },
         referrer: 'https://people.zoho.com/xebiacom/zp',
         mode: 'cors',
